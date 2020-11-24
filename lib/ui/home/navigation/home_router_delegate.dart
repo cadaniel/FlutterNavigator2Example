@@ -18,8 +18,8 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
   HomeState get currentConfiguration => _currentState;
 
   List<Page<dynamic>> _getPages() {
-    List<Page<dynamic>> pages = [];
-    pages.add(ProductsPage());
+    List<Page<dynamic>> pages = [ProductsPage()];
+
     _previousState?.maybeWhen(
       orElse: () {},
       product: (product) => pages.add(ProductPage(product)),
@@ -39,12 +39,7 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
     return BlocListener(
       cubit: BlocProvider.of<HomeCubit>(context),
       listener: (_, HomeState state) {
-        state.maybeWhen(
-          orElse: () {},
-          cart: () {
-            _previousState = _currentState;
-          },
-        );
+        _previousState = _currentState;
         _currentState = state;
         notifyListeners();
       },
@@ -59,7 +54,7 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
               return false;
             },
             product: (product) {
-              _currentState = _previousState ?? HomeState.product(product);
+              _currentState = _previousState ?? HomeState.products();
               return true;
             },
             cart: () {
@@ -75,5 +70,6 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
   @override
   Future<void> setNewRoutePath(HomeState configuration) async {
     _currentState = configuration;
+    notifyListeners();
   }
 }
