@@ -16,7 +16,7 @@ class NavigatorExampleRouteDelegate extends RouterDelegate<AuthState>
 
   AuthState get currentConfiguration => _currentState;
 
-  List<Page<dynamic>> _getPages(BuildContext context) {
+  List<Page<dynamic>> _getPages() {
     List<Page<dynamic>> pages = [LoadingPage()]; //default
 
     _currentState.when(
@@ -43,7 +43,7 @@ class NavigatorExampleRouteDelegate extends RouterDelegate<AuthState>
         notifyListeners();
       },
       child: Navigator(
-        pages: _getPages(context),
+        pages: _getPages(),
         onPopPage: (route, result) {
           //we dont' want to pop any further than this navigator
           return false;
@@ -55,5 +55,6 @@ class NavigatorExampleRouteDelegate extends RouterDelegate<AuthState>
   @override
   Future<void> setNewRoutePath(AuthState configuration) async {
     _currentState = configuration;
+    notifyListeners();
   }
 }
