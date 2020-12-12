@@ -13,4 +13,6 @@ class HomeCubit extends Cubit<HomeState> {
   void navigateToCart() => emit(HomeState.cart());
 
   void navigateToProduct(Product product) => emit(HomeState.product(product));
+
+  void navigateToProducts() => emit(HomeState.products());
 }

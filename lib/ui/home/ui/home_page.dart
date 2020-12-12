@@ -9,11 +9,11 @@ import 'package:navigator_example/ui/home/navigation/home_route_information_prov
 import 'package:navigator_example/ui/home/navigation/home_router_delegate.dart';
 
 class HomePage extends PlatformPage {
-  HomePage() : super(HomeWidget(ValueKey("/home")), "/home");
+  HomePage() : super(HomeWidget(), "/home");
 }
 
 class HomeWidget extends StatelessWidget {
-  HomeWidget(Key key) : super(key: key);
+  HomeWidget({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(

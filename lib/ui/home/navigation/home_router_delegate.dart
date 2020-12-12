@@ -22,7 +22,11 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
 
     _previousState?.maybeWhen(
       orElse: () {},
-      product: (product) => pages.add(ProductPage(product)),
+      product: (product) {
+        if (_currentState == HomeState.cart()) {
+          pages.add(ProductPage(product));
+        }
+      },
     );
 
     _currentState.when(
@@ -36,8 +40,10 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
 
   @override
   Widget build(BuildContext context) {
+    var cubit = BlocProvider.of<HomeCubit>(context);
     return BlocListener(
-      cubit: BlocProvider.of<HomeCubit>(context),
+      cubit: cubit,
+      listenWhen: (past, current) => _previousState != past,
       listener: (_, HomeState state) {
         _previousState = _currentState;
         _currentState = state;
@@ -46,22 +52,36 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
       child: Navigator(
         pages: _getPages(),
         onPopPage: (route, result) {
-          if (!route.didPop(result)) {
+          if (!route.didPop(result) || _currentState == HomeState.products()) {
             return false;
           }
-          return _currentState.when(
+          _currentState.when(
             products: () {
-              return false;
+              _previousState = HomeState.products();
+              _currentState = HomeState.products();
             },
             product: (product) {
-              _currentState = _previousState ?? HomeState.products();
-              return true;
+              _currentState = HomeState.products();
+              _previousState = HomeState.product(product);
+              cubit.navigateToProducts();
             },
             cart: () {
-              _currentState = _previousState ?? HomeState.products();
-              return true;
+              _previousState.when(
+                products: () {
+                  _currentState = HomeState.products();
+                  _previousState = HomeState.cart();
+                  cubit.navigateToProducts();
+                },
+                product: (product) {
+                  _currentState = HomeState.product(product);
+                  _previousState = HomeState.cart();
+                  cubit.navigateToProduct(product);
+                },
+                cart: () {},
+              );
             },
           );
+          return true;
         },
       ),
     );

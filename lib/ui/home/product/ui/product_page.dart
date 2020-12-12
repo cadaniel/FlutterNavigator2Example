@@ -9,19 +9,15 @@ import 'package:navigator_example/ui/home/cubit/home/home_cubit.dart';
 
 class ProductPage extends PlatformPage {
   final Product product;
-  ProductPage(this.product)
-      : super(
-          ProductWidget(
-            product: product,
-          ),
-          "product",
-        );
+
+  ProductPage(this.product) : super(ProductWidget(product: product), "product");
 }
 
 class ProductWidget extends StatelessWidget {
   final Product product;
 
   const ProductWidget({Key key, this.product}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var homeCubit = BlocProvider.of<HomeCubit>(context);
