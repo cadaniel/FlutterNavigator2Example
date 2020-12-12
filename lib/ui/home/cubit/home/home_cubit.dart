@@ -10,9 +10,20 @@ part 'home_state.dart';
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeState.products());
 
-  void navigateToCart() => emit(HomeState.cart());
+  HomeState previousState = HomeState.products();
 
-  void navigateToProduct(Product product) => emit(HomeState.product(product));
+  void navigateToCart() {
+    previousState = state;
+    emit(HomeState.cart());
+  }
 
-  void navigateToProducts() => emit(HomeState.products());
+  void navigateToProduct(Product product) {
+    previousState = state;
+    emit(HomeState.product(product));
+  }
+
+  void navigateToProducts() {
+    previousState = state;
+    emit(HomeState.products());
+  }
 }

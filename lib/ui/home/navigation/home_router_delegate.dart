@@ -10,26 +10,22 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<HomeState> {
   final GlobalKey<NavigatorState> navigatorKey;
 
-  HomeState _currentState = HomeState.products();
-  HomeState _previousState;
-
   HomeRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
 
-  HomeState get currentConfiguration => _currentState;
-
-  List<Page<dynamic>> _getPages() {
+  List<Page<dynamic>> _getPages(
+      HomeState currentState, HomeState previousState) {
     List<Page<dynamic>> pages = [ProductsPage()];
 
-    _previousState?.maybeWhen(
+    previousState?.maybeWhen(
       orElse: () {},
       product: (product) {
-        if (_currentState == HomeState.cart()) {
+        if (currentState == HomeState.cart()) {
           pages.add(ProductPage(product));
         }
       },
     );
 
-    _currentState.when(
+    currentState.when(
       products: () {},
       product: (product) => pages.add(ProductPage(product)),
       cart: () => pages.add(CartPage()),
@@ -43,38 +39,28 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
     var cubit = BlocProvider.of<HomeCubit>(context);
     return BlocListener(
       cubit: cubit,
-      listenWhen: (past, current) => _previousState != past,
       listener: (_, HomeState state) {
-        _previousState = _currentState;
-        _currentState = state;
         notifyListeners();
       },
       child: Navigator(
-        pages: _getPages(),
+        pages: _getPages(cubit.state, cubit.previousState),
         onPopPage: (route, result) {
-          if (!route.didPop(result) || _currentState == HomeState.products()) {
+          if (!route.didPop(result) || cubit.state == HomeState.products()) {
             return false;
           }
-          _currentState.when(
+          cubit.state.when(
             products: () {
-              _previousState = HomeState.products();
-              _currentState = HomeState.products();
+              cubit.navigateToProducts();
             },
             product: (product) {
-              _currentState = HomeState.products();
-              _previousState = HomeState.product(product);
               cubit.navigateToProducts();
             },
             cart: () {
-              _previousState.when(
+              cubit.previousState.when(
                 products: () {
-                  _currentState = HomeState.products();
-                  _previousState = HomeState.cart();
                   cubit.navigateToProducts();
                 },
                 product: (product) {
-                  _currentState = HomeState.product(product);
-                  _previousState = HomeState.cart();
                   cubit.navigateToProduct(product);
                 },
                 cart: () {},
@@ -89,7 +75,6 @@ class HomeRouterDelegate extends RouterDelegate<HomeState>
 
   @override
   Future<void> setNewRoutePath(HomeState configuration) async {
-    _currentState = configuration;
     notifyListeners();
   }
 }
